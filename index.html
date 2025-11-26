@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ABC & 123 Learning App</title>
+    <!-- <link rel="stylesheet" href="style.css" /> -->
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 30px;
+        background-color: #f0f8ff;
+      }
+      .button-group button {
+        padding: 12px 24px;
+        margin: 10px;
+        font-size: 18px;
+        cursor: pointer;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+      }
+      #game-area {
+        margin-top: 30px;
+      }
+      input {
+        padding: 10px;
+        font-size: 18px;
+        width: 80px;
+        text-align: center;
+      }
+      input:focus {
+        outline: 2px solid #4caf50;
+      }
+      .feedback {
+        margin-top: 20px;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .confetti {
+        font-size: 40px;
+        animation: pop 0.5s ease;
+      }
+      @keyframes pop {
+        0% {
+          transform: scale(0);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Learn ABCs, 123s & Math!</h1>
+
+    <div class="button-group" id="main-menu">
+      <button onclick="startABC()">Learn ABCs</button>
+      <button onclick="startNumbers()">Learn 123s</button>
+      <button onclick="startMath()">Learn Math</button>
+    </div>
+
+    <div id="game-area"></div>
+
+    <script>
+      let currentAnswer = "";
+
+      function speak(text) {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = "en-US";
+        const voice =
+          speechSynthesis
+            .getVoices()
+            .find(
+              (v) =>
+                v.name.includes("Female") ||
+                v.name.includes("Google US English")
+            ) || speechSynthesis.getVoices()[0];
+        if (voice) utter.voice = voice;
+        speechSynthesis.speak(utter);
+      }
+
+      function backToMenu() {
+        document.getElementById("game-area").innerHTML = "";
+        document.getElementById("main-menu").style.display = "block";
+      }
+
+      function showCorrectFeedback() {
+        document.getElementById("feedback").innerHTML =
+          "✅ Correct! <div class='confetti'>🎉</div>";
+        document.getElementById("feedback").style.color = "green";
+        speak("Correct!");
+      }
+
+      function showIncorrectFeedback() {
+        document.getElementById("feedback").textContent = "❌ Try again!";
+        document.getElementById("feedback").style.color = "red";
+        speak("Try again!");
+      }
+
+      function startABC() {
+        document.getElementById("main-menu").style.display = "none";
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        currentAnswer = letters[Math.floor(Math.random() * letters.length)];
+        document.getElementById("game-area").innerHTML = `
+        <h2>What letter is this?</h2>
+        <div style="font-size: 60px;">?</div>
+        <button onclick="speakLetter()">🔊 Say the Letter</button><br><br>
+        <input id="guessInput" maxlength="1" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" />
+        <button onclick="checkGuess()">Submit</button>
+        <p class="feedback" id="feedback"></p>
+        <button onclick="backToMenu()">🔙 Back to Menu</button>
+      `;
+        document.getElementById("guessInput").focus();
+        speakLetter();
+      }
+
+      function startNumbers() {
+        document.getElementById("main-menu").style.display = "none";
+        const number = Math.floor(Math.random() * 10);
+        currentAnswer = number.toString();
+        document.getElementById("game-area").innerHTML = `
+        <h2>What number is this?</h2>
+        <div style="font-size: 60px;">?</div>
+        <button onclick="speakLetter()">🔊 Say the Number</button><br><br>
+        <input id="guessInput" type="number" inputmode="numeric" autocomplete="off" />
+        <button onclick="checkGuess()">Submit</button>
+        <p class="feedback" id="feedback"></p>
+        <button onclick="backToMenu()">🔙 Back to Menu</button>
+      `;
+        document.getElementById("guessInput").focus();
+        speakLetter();
+      }
+
+      function startMath() {
+        document.getElementById("main-menu").style.display = "none";
+        const a = Math.floor(Math.random() * 10);
+        const b = Math.floor(Math.random() * 10);
+        const op = Math.random() < 0.5 ? "+" : "-";
+        const question =
+          op === "+" ? `${a} + ${b}` : `${Math.max(a, b)} - ${Math.min(a, b)}`;
+        currentAnswer = eval(question).toString();
+
+        document.getElementById("game-area").innerHTML = `
+        <h2>Solve: ${question}</h2>
+        <button onclick="speakLetter()">🔊 Read It</button><br><br>
+        <input id="guessInput" type="number" inputmode="numeric" autocomplete="off" />
+        <button onclick="checkGuess()">Submit</button>
+        <p class="feedback" id="feedback"></p>
+        <button onclick="backToMenu()">🔙 Back to Menu</button>
+      `;
+        document.getElementById("guessInput").focus();
+        speak(question);
+      }
+
+      function speakLetter() {
+        speak(currentAnswer);
+      }
+
+      function checkGuess() {
+        const input = document
+          .getElementById("guessInput")
+          .value.trim()
+          .toUpperCase();
+        const correct = currentAnswer.toUpperCase();
+        if (input === correct) {
+          showCorrectFeedback();
+        } else {
+          showIncorrectFeedback();
+        }
+      }
+    </script>
+  </body>
+</html>
